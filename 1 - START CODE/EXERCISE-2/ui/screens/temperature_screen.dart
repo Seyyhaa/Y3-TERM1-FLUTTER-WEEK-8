@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 
-class TemperatureScreen extends StatelessWidget {
-  TemperatureScreen({super.key});
+class TemperatureScreen extends StatefulWidget {
+  const TemperatureScreen({super.key});
 
+  @override
+  State<TemperatureScreen> createState() => _TemperatureScreenState();
+}
+
+class _TemperatureScreenState extends State<TemperatureScreen> {
+  final TextEditingController _controller = TextEditingController();
+
+  String _convertedValue = '';
 
   final InputDecoration inputDecoration = InputDecoration(
     enabledBorder: OutlineInputBorder(
@@ -12,6 +20,27 @@ class TemperatureScreen extends StatelessWidget {
     hintText: 'Enter a temperature',
     hintStyle: const TextStyle(color: Colors.white),
   );
+
+  void convertTemperature(String value) {
+    if (value.isEmpty) {
+      setState(() {
+        _convertedValue = '';
+      });
+      return;
+    }
+    try {
+      double celsius = double.parse(value);
+      double fahrenheit = (celsius * 9 / 5) + 32;
+      setState(() {
+        _convertedValue = fahrenheit.toStringAsFixed(2);
+      });
+    } catch (e) {
+      setState(() {
+        _convertedValue = 'Invalid Input'; 
+      });
+      print("Error converting number");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,8 +66,14 @@ class TemperatureScreen extends StatelessWidget {
             const Text("Temperature in Degrees:"),
             const SizedBox(height: 10),
             TextField(
+              controller: _controller,
+
               decoration: inputDecoration,
               style: const TextStyle(color: Colors.white),
+
+              onChanged: (value) {
+                convertTemperature(value);
+              },
             ),
             const SizedBox(height: 30),
             const Text("Temperature in Fahrenheit:"),
@@ -49,7 +84,11 @@ class TemperatureScreen extends StatelessWidget {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Text('test'),
+              child: Text(
+                _convertedValue.isEmpty
+                    ? 'Waiting for input...'
+                    : _convertedValue,
+              ),
             ),
           ],
         ),
